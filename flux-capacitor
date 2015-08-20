@@ -1,0 +1,314 @@
+#!/usr/bin/env python
+import os
+import re
+import sys
+import argparse
+import json
+import time
+import fileinput
+import itertools
+import collections
+import shlex
+import subprocess as sp
+
+import flux
+import flux.kvs as kvs
+
+arg_parser = argparse.ArgumentParser(
+    description="Execute a group of programs with the flux resource manager")
+
+arg_parser.add_argument('--tasks', '-n', type=int, default=1)
+arg_parser.add_argument('--nodes', '-N', type=int, default=0)
+
+arg_parser.add_argument(
+    '--command_file', '-c',
+    action='append',
+    default=[],
+    help='''Name of a file with one argument list per line, blank
+lines and lines where the first non-whitespace character is a # are ignored, 
+all arguments accepted on the %(prog)s line are accepted in the file, may 
+be specified multiple times''')
+
+arg_parser.add_argument('command', nargs=argparse.REMAINDER)
+
+args = arg_parser.parse_args(sys.argv[1:])
+
+max_pending = 0
+max_running = 0
+
+h = flux.Flux()
+
+Core = collections.namedtuple('Core', ['rank_id', 'os_index', 'logical_index'])
+Rank = collections.namedtuple('Rank', ['rank_id', 'cores', 'available_cores'])
+
+def job_state_change(key, value, scheduler, errnum):
+    scheduler.state_change(key, value)
+
+
+class Scheduler(object):
+    """ A wrapper API for scheduler operations, mainly to stub out 
+    functionality that currently does not work without it."""
+
+    def __init__(self):
+        self.total_ranks = 0
+        self.total_cores = 0
+        self.ranks = {}
+        self.available_ranks = {}
+        self.partial_ranks = {}
+        self.pending_jobs = collections.OrderedDict()
+        self.running_jobs = collections.OrderedDict()
+        self.completed_jobs = collections.OrderedDict()
+
+        self.read_resource_availability()
+
+    def get_os_id_for_core(self, kd, index):
+        # TODO: bring this functionality back, but faster, for now the
+        # specific ID is unnecessary due to lack of binding anyway
+        # for root, dirs, files in kvs.walk(kd, topdown=True):
+        #     if re.match('.*Core_{}$'.format(index), root):
+        #         return kd[kvs.join(root, 'os_index')]
+        return index
+        # raise RuntimeError("Hardware description for core {} under {} not found".format(index, kd))
+
+    def read_resource_availability(self):
+        rank_resources = kvs.get_dir(h, 'resource.hwloc.by_rank')
+        for rank_id, resources in rank_resources.items():
+            cores = []
+            for i in range(0, resources['Core']):
+                os_index = self.get_os_id_for_core(resources, i)
+                c = Core(int(rank_id), os_index, i)
+                cores.append(c)
+            r = Rank(int(rank_id), cores, cores)
+            self.ranks[int(rank_id)] = r
+            self.available_ranks[int(rank_id)] = r
+
+    def check_feasibility(self, job):
+        if job.spec['nnodes'] > len(self.ranks):
+            raise RuntimeError(
+                "More resources have been requested than exist: {}".format(job))
+
+    def schedule(self, job):
+        global max_running
+        global max_pending
+        if job.spec['nnodes'] > len(self.available_ranks):
+            self.pending_jobs[int(job.job_id)] = job
+            max_pending = max_pending if max_pending > len(self.pending_jobs) else len(self.pending_jobs)
+            return
+
+        assigned_ranks = []
+        assigned_cores = []
+        # One or more nodes has been requested, spread tasks across nodes,
+        # nodes are not uniquely allocated unless fully subscribed
+        if job.spec['nnodes'] > 0:
+            tasks_per_node = int(job.spec['ntasks'] / job.spec['nnodes'])
+            remainder = job.spec['ntasks'] % job.spec['nnodes']
+            while len(assigned_ranks) < job.spec['nnodes']:
+                tasks = tasks_per_node
+                if remainder > 0:
+                    tasks += 1
+                    remainder -= 1
+                rid, r = self.available_ranks.popitem()
+                assigned_ranks.append(r)
+                while len(r.available_cores):
+                    core = r.available_cores.pop()
+                job.kvs['rank.{}.cores'.format(r.rank_id)] = tasks
+        else:
+            cores_required = job.spec['ntasks']
+            for rid, r in self.partial_ranks.items():
+                cores_from_here = 0
+                while len(r.available_cores):
+                    c = r.available_cores.pop()
+                    assigned_cores.append(c)
+                    cores_from_here += 1
+                    if len(assigned_cores) >= cores_required:
+                        break
+                if len(r.available_cores) == 0:
+                    del self.partial_ranks[rid]
+                if cores_from_here > 0:
+                    job.kvs['rank.{}.cores'.format(r.rank_id)
+                            ] = cores_from_here
+                if len(assigned_cores) >= cores_required:
+                    break
+            if len(assigned_cores) < cores_required:
+                for rid, r in self.available_ranks.items():
+                    cores_from_here = 0
+                    while len(r.available_cores):
+                        c = r.available_cores.pop()
+                        assigned_cores.append(c)
+                        cores_from_here += 1
+                        if len(assigned_cores) >= cores_required:
+                            break
+                    if len(r.available_cores):
+                        self.partial_ranks[rid] = r
+
+                    del self.available_ranks[rid]
+
+                    if cores_from_here > 0:
+                        job.kvs['rank.{}.cores'.format(r.rank_id)
+                                ] = cores_from_here
+                    if len(assigned_cores) >= cores_required:
+                        break
+            if len(assigned_cores) < cores_required:
+                job.resources = {
+                    'ranks': assigned_ranks,
+                    'cores': assigned_cores
+                }
+                # Not envough cores available
+                self.release_job_resources(job)
+                self.pending_jobs[int(job.job_id)] = job
+                max_pending = max_pending if max_pending > len(self.pending_jobs) else len(self.pending_jobs)
+                return
+
+        job.resources = {'ranks': assigned_ranks, 'cores': assigned_cores}
+        job.kvs.commit()
+        kvs.watch(h, 'lwj.{}.state'.format(job.job_id), job_state_change, self)
+        h.event_send('wrexec.run.{}'.format(job.job_id))
+        self.running_jobs[job.job_id] = job
+        max_running = max_running if max_running > len(self.running_jobs) else len(self.running_jobs)
+
+    def try_schedule(self):
+        pending = self.pending_jobs
+        self.pending_jobs = collections.OrderedDict()
+
+        # TODO: this will have pathologically bad performance under some cases, rework
+        for jid, j in pending.items():
+            self.schedule(j)
+
+    def release_job_resources(self, job):
+        for r in job.resources['ranks']:
+            r.available_cores.extend(r.cores)
+        for c in job.resources['cores']:
+            r = self.ranks[c.rank_id]
+            r.available_cores.append(c)
+            if len(r.available_cores) == len(r.cores):
+                self.available_ranks[r.rank_id] = r
+                try:
+                    del self.partial_ranks[r.rank_id]
+                except:
+                    pass
+
+    def state_change(self, key, state):
+        print "received state change to:", key, state
+        if state == 'complete':
+            kvs.unwatch(h, key)
+            m = re.match(r'lwj.(\d*).state', key)
+            job_id = int(m.group(1))
+            job = self.running_jobs.pop(job_id)
+            self.completed_jobs[job_id] = job
+            self.release_job_resources(job)
+            if len(self.pending_jobs) == 0 and len(self.running_jobs) == 0:
+                h.reactor_stop()
+                return 0
+
+            if len(self.pending_jobs) > 0:
+                self.try_schedule()
+        return 0
+
+    def submit(self, job):
+        self.check_feasibility(job)
+        self.schedule(job)
+
+
+sched = Scheduler()
+
+
+class Job(object):
+    def __init__(self, command_arr, **kwargs):
+        self.job_id = None
+        self.kvs = None
+        self.state_count = 0
+        self.spec = {
+            'nnodes': 0,
+            'ntasks': 1,
+            'cmdline': command_arr,
+            'environ': dict(os.environ),  # TODO: filter this
+            'cwd': os.getcwd(),
+        }
+        if len(kwargs):
+            self.spec.update(kwargs)
+
+        self.pre_validate()
+
+    def pre_validate(self):
+        if self.spec['ntasks'] < self.spec['nnodes']:
+            self.spec['ntasks'] = self.spec['nnodes']
+
+        if self.spec['ntasks'] <= 0:
+            raise AttributeError("A program must contain at least one task")
+
+    def create(self):
+        resp = h.rpc_send('job.create', json.dumps(self.spec))
+        if resp is None:
+            raise RuntimeError("RPC response invalid")
+        if resp.get('errnum', None) is not None:
+            raise RuntimeError("Job creation failed with error code {}".format(
+                resp['errnum']))
+        self.job_id = resp['jobid']
+
+    def submit(self):
+        jobdir = 'lwj.{}'.format(self.job_id)
+        self.kvs = kvs.get_dir(h, jobdir)
+        sched.submit(self)
+
+        # # TODO: this should be subsumed by a job submission and event
+        # # interface
+        # kvs.watch(h, jobdir + '.state', job_state_change, self)
+        # self.kvs['state'] = 'submitted'
+        # self.kvs.commit()
+
+    def __str__(self):
+        if self.job_id is None:
+            return "<Job, unwritten: " + str(self.spec) + ">"
+        elif self.kvs is None:
+            return "<Job, unsubmitted: " + str(self.spec) + ">"
+        else:
+            ret = "Submitted job, kvs contents:\n"
+            for root, dirs, files in kvs.walk(self.kvs, topdown=True):
+                for f in files:
+                    ret = ret + "{}.{}={}\n".format(
+                        root, f, self.kvs[kvs.join(root, f)])
+            return ret
+
+commands = []
+if len(args.command_file) > 0:
+    commands = fileinput.input(args.command_file)
+
+if len(args.command) > 0:
+    print 'cl command : {}'.format(args.command)
+    j = Job(args.command, ntasks=args.tasks, nnodes=args.nodes)
+    j.create()
+    j.submit()
+elif not commands:
+    # If there are still no commands, attempt to read them from standard input
+    raise RuntimeError("No commands specified")
+
+def time_to_die(key, value, scheduler, errnum):
+    print "exiting due to timeout"
+    print "pending: ", max_pending
+    print "running: ", max_running
+    h.reactor_stop()
+
+# iterate over all commands from all sources
+for c in commands:
+    arg_list = shlex.split(c, comments=True)
+    if len(arg_list) == 0:
+        continue
+    local_args = arg_parser.parse_args(arg_list)
+    # need a better way to tie these together
+    ntasks = local_args.tasks
+    nnodes = local_args.nodes
+    j = Job(local_args.command, ntasks=ntasks, nnodes=nnodes)
+    j.create()
+    j.submit()
+    while len(sched.pending_jobs) > 100:
+        with h.timer_watcher_create(.5, time_to_die):
+            h.reactor_start()
+
+
+with h.timer_watcher_create(600, time_to_die):
+    h.reactor_start()
+
+if len(sched.pending_jobs) + len(sched.running_jobs) == 0:
+    print "All jobs complete, exiting"
+else:
+    print "Some jobs did not finish"
