@@ -6,19 +6,19 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 40 ./mpi_hello
+-n 40 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -50,7 +50,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -79,18 +79,18 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -99,23 +99,23 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -127,18 +127,18 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -146,26 +146,26 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
--n 2 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 13 ./mpi_hello
+-n 13 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 3 ./mpi_hello
+-n 3 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -173,13 +173,13 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 3 ./mpi_hello
+-n 3 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -187,32 +187,32 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 12 ./mpi_hello
+-n 12 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 3 ./mpi_hello
+-n 3 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
--n 3 ./mpi_hello
+-n 3 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -228,40 +228,40 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 3 ./mpi_hello
+-n 3 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
--n 9 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
+-n 9 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 12 ./mpi_hello
+-n 12 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -273,7 +273,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 3 ./mpi_hello
+-n 3 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -319,9 +319,9 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -329,7 +329,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -337,7 +337,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 12 ./mpi_hello
+-n 12 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -345,21 +345,21 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 8 ./mpi_hello
+-n 8 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 8 ./mpi_hello
+-n 8 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -373,23 +373,23 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 2 ./mpi_hello
+-n 2 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 7 ./mpi_hello
+-n 7 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -419,7 +419,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -427,25 +427,25 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -459,29 +459,29 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 8 ./mpi_hello
+-n 8 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -489,13 +489,13 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 8 ./mpi_hello
+-n 8 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -515,9 +515,9 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -533,13 +533,13 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 8 ./mpi_hello
+-n 8 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -549,39 +549,39 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -591,7 +591,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -601,21 +601,21 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 8 ./mpi_hello
+-n 8 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -623,17 +623,17 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -643,24 +643,24 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -678,11 +678,11 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -696,21 +696,21 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -742,15 +742,15 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -758,9 +758,9 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 8 ./mpi_hello
+-n 8 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -782,7 +782,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -790,7 +790,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -802,7 +802,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -818,23 +818,23 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -862,7 +862,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -872,7 +872,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -896,19 +896,19 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -922,11 +922,11 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -936,27 +936,27 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -982,15 +982,15 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -1016,7 +1016,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -1042,7 +1042,7 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -1070,13 +1070,13 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -1116,11 +1116,11 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -1135,50 +1135,50 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
@@ -1186,39 +1186,39 @@
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 3 ./mpi_hello
+-n 3 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 16 ./mpi_hello
+-n 16 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
 -n 1 hostname
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname
--n 4 ./mpi_hello
+-n 4 sh -c 'LD_PRELOAD=$HOME/projects/flux/flux-core/src/lib/libpmi/.libs/libpmi.so ../flux-core/src/test/mpi_hello'
 -n 1 hostname

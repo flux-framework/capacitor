@@ -9,7 +9,13 @@ import fileinput
 import itertools
 import collections
 import shlex
+import signal
+import select
+import Queue
 import subprocess as sp
+import multiprocessing as mp
+
+import urwid
 
 import flux
 import flux.kvs as kvs
@@ -19,6 +25,7 @@ arg_parser = argparse.ArgumentParser(
 
 arg_parser.add_argument('--tasks', '-n', type=int, default=1)
 arg_parser.add_argument('--nodes', '-N', type=int, default=0)
+arg_parser.add_argument('--scheduler', '-S')
 
 arg_parser.add_argument(
     '--command_file', '-c',
@@ -33,28 +40,33 @@ arg_parser.add_argument('command', nargs=argparse.REMAINDER)
 
 args = arg_parser.parse_args(sys.argv[1:])
 
+def time_to_die(key=None, value=None, revents=None, sched=None):
+    print "pending: ", len(sched.pending_jobs), max_pending
+    print "running: ", len(sched.running_jobs), max_running
+    if sched is not None:
+        sched.fh.reactor_stop()
+
+not_done = True
 max_pending = 0
 max_running = 0
-
-h = flux.Flux()
-
-Core = collections.namedtuple('Core', ['rank_id', 'os_index', 'logical_index'])
-Rank = collections.namedtuple('Rank', ['rank_id', 'cores', 'available_cores'])
 
 def job_state_change(key, value, scheduler, errnum):
     scheduler.state_change(key, value)
 
+Core = collections.namedtuple('Core', ['rank_id', 'os_index', 'logical_index'])
+Rank = collections.namedtuple('Rank', ['rank_id', 'cores', 'available_cores'])
 
 class Scheduler(object):
     """ A wrapper API for scheduler operations, mainly to stub out 
     functionality that currently does not work without it."""
 
-    def __init__(self):
-        self.total_ranks = 0
-        self.total_cores = 0
+    def __init__(self, flux_handle = None):
+        if flux_handle is None:
+            flux_handle = flux.Flux()
+        self.fh = flux_handle
         self.ranks = {}
         self.available_ranks = {}
-        self.partial_ranks = {}
+        self.jobs = {}
         self.pending_jobs = collections.OrderedDict()
         self.running_jobs = collections.OrderedDict()
         self.completed_jobs = collections.OrderedDict()
@@ -71,7 +83,7 @@ class Scheduler(object):
         # raise RuntimeError("Hardware description for core {} under {} not found".format(index, kd))
 
     def read_resource_availability(self):
-        rank_resources = kvs.get_dir(h, 'resource.hwloc.by_rank')
+        rank_resources = kvs.get_dir(self.fh, 'resource.hwloc.by_rank')
         for rank_id, resources in rank_resources.items():
             cores = []
             for i in range(0, resources['Core']):
@@ -87,9 +99,85 @@ class Scheduler(object):
             raise RuntimeError(
                 "More resources have been requested than exist: {}".format(job))
 
+    def submit(self, job):
+        self.check_feasibility(job)
+        resp = self.fh.rpc_send('job.create', json.dumps(job.spec))
+        if resp is None:
+            raise RuntimeError("RPC response invalid")
+        if resp.get('errnum', None) is not None:
+            raise RuntimeError("Job creation failed with error code {}".format(
+                resp['errnum']))
+        job.job_id = resp['jobid']
+        self.jobs[int(job.job_id)] = job
+        jobdir = 'lwj.{}'.format(job.job_id)
+        job.kvs = kvs.get_dir(self.fh, jobdir)
+        kvs.watch(self.fh, 'lwj.{}.state'.format(job.job_id), job_state_change, self)
+        self.schedule(job)
+
+    def release_job_resources(self, job):
+        pass
+
+    def try_schedule(self):
+        pending = self.pending_jobs
+        self.pending_jobs = collections.OrderedDict()
+
+        # TODO: this will have pathologically bad performance under some cases, rework
+        for jid, j in pending.items():
+            self.schedule(j)
+
+    def state_change(self, key, state):
+        # print "received state change to: '{}'".format(state), key, state, state == 'complete'
+        print key
+        m = re.match('lwj.(\d*).state', key)
+        job_id = int(m.group(1))
+        self.jobs[job_id].state = state
+        print job_id, "reached", state
+        if state == 'complete':
+            kvs.unwatch(self.fh, key)
+            job = self.running_jobs.pop(job_id)
+            self.completed_jobs[job_id] = job
+            self.release_job_resources(job)
+            if len(self.pending_jobs) == 0 and len(self.running_jobs) == 0:
+                self.fh.reactor_stop()
+                not_done = False
+                return 0
+
+            if len(self.pending_jobs) > 0:
+                self.try_schedule()
+        return 0
+
+    def schedule(self, job):
+        while len(self.pending_jobs) >= 100:
+            with self.fh.timer_watcher_create(0.5, time_to_die, args=self):
+                self.fh.reactor_start()
+
+class FluxScheduler(Scheduler):
+    """ Interact with the flux-sched module in the instance """
+
+    def __init__(self, flux_handle = None):
+        super(FluxScheduler, self).__init__(flux_handle)
+
+    def schedule(self, job):
+        super(FluxScheduler, self).schedule(job)
+        self.pending_jobs[int(job.job_id)] = job
+        job_dir = 'lwj.{}'.format(job.job_id)
+        # TODO: this should be subsumed by a job submission and event
+        # interface
+        job.kvs['state'] = 'submitted'
+        job.kvs.commit()
+
+class CapScheduler(Scheduler):
+    """ Inner scheduler for testing while working on FluxScheduler support """
+    def __init__(self, flux_handle = None):
+        super(CapScheduler, self).__init__(flux_handle)
+        self.total_ranks = 0
+        self.total_cores = 0
+        self.partial_ranks = {}
+
     def schedule(self, job):
         global max_running
         global max_pending
+        super(CapScheduler, self).schedule(job)
         if job.spec['nnodes'] > len(self.available_ranks):
             self.pending_jobs[int(job.job_id)] = job
             max_pending = max_pending if max_pending > len(self.pending_jobs) else len(self.pending_jobs)
@@ -144,8 +232,7 @@ class Scheduler(object):
                     del self.available_ranks[rid]
 
                     if cores_from_here > 0:
-                        job.kvs['rank.{}.cores'.format(r.rank_id)
-                                ] = cores_from_here
+                        job.kvs['rank.{}.cores'.format(r.rank_id)] = cores_from_here
                     if len(assigned_cores) >= cores_required:
                         break
             if len(assigned_cores) < cores_required:
@@ -161,18 +248,10 @@ class Scheduler(object):
 
         job.resources = {'ranks': assigned_ranks, 'cores': assigned_cores}
         job.kvs.commit()
-        kvs.watch(h, 'lwj.{}.state'.format(job.job_id), job_state_change, self)
-        h.event_send('wrexec.run.{}'.format(job.job_id))
+        self.fh.event_send('wrexec.run.{}'.format(job.job_id))
         self.running_jobs[job.job_id] = job
         max_running = max_running if max_running > len(self.running_jobs) else len(self.running_jobs)
 
-    def try_schedule(self):
-        pending = self.pending_jobs
-        self.pending_jobs = collections.OrderedDict()
-
-        # TODO: this will have pathologically bad performance under some cases, rework
-        for jid, j in pending.items():
-            self.schedule(j)
 
     def release_job_resources(self, job):
         for r in job.resources['ranks']:
@@ -186,30 +265,6 @@ class Scheduler(object):
                     del self.partial_ranks[r.rank_id]
                 except:
                     pass
-
-    def state_change(self, key, state):
-        print "received state change to:", key, state
-        if state == 'complete':
-            kvs.unwatch(h, key)
-            m = re.match(r'lwj.(\d*).state', key)
-            job_id = int(m.group(1))
-            job = self.running_jobs.pop(job_id)
-            self.completed_jobs[job_id] = job
-            self.release_job_resources(job)
-            if len(self.pending_jobs) == 0 and len(self.running_jobs) == 0:
-                h.reactor_stop()
-                return 0
-
-            if len(self.pending_jobs) > 0:
-                self.try_schedule()
-        return 0
-
-    def submit(self, job):
-        self.check_feasibility(job)
-        self.schedule(job)
-
-
-sched = Scheduler()
 
 
 class Job(object):
@@ -236,26 +291,6 @@ class Job(object):
         if self.spec['ntasks'] <= 0:
             raise AttributeError("A program must contain at least one task")
 
-    def create(self):
-        resp = h.rpc_send('job.create', json.dumps(self.spec))
-        if resp is None:
-            raise RuntimeError("RPC response invalid")
-        if resp.get('errnum', None) is not None:
-            raise RuntimeError("Job creation failed with error code {}".format(
-                resp['errnum']))
-        self.job_id = resp['jobid']
-
-    def submit(self):
-        jobdir = 'lwj.{}'.format(self.job_id)
-        self.kvs = kvs.get_dir(h, jobdir)
-        sched.submit(self)
-
-        # # TODO: this should be subsumed by a job submission and event
-        # # interface
-        # kvs.watch(h, jobdir + '.state', job_state_change, self)
-        # self.kvs['state'] = 'submitted'
-        # self.kvs.commit()
-
     def __str__(self):
         if self.job_id is None:
             return "<Job, unwritten: " + str(self.spec) + ">"
@@ -269,46 +304,61 @@ class Job(object):
                         root, f, self.kvs[kvs.join(root, f)])
             return ret
 
-commands = []
-if len(args.command_file) > 0:
-    commands = fileinput.input(args.command_file)
+def scheduler_proc(job_stream, finish):
+    ret = 0
+    if args.scheduler:
+        sched = FluxScheduler()
+    else:
+        sched = CapScheduler()
+    while not_done:
+        try:
+            j = job_stream.get_nowait()
+            sched.submit(j)
+        except Queue.Empty:
+            with sched.fh.timer_watcher_create(1, time_to_die, args=sched):
+                sched.fh.reactor_start()
+        if len(sched.pending_jobs) == len(sched.running_jobs) == 0:
+            break
+    finish.put(ret)
 
-if len(args.command) > 0:
-    print 'cl command : {}'.format(args.command)
-    j = Job(args.command, ntasks=args.tasks, nnodes=args.nodes)
-    j.create()
-    j.submit()
-elif not commands:
-    # If there are still no commands, attempt to read them from standard input
-    raise RuntimeError("No commands specified")
+    if len(sched.pending_jobs) + len(sched.running_jobs) == 0:
+        print "All jobs complete, exiting"
+    else:
+        print "Some jobs did not finish"
 
-def time_to_die(key, value, scheduler, errnum):
-    print "exiting due to timeout"
-    print "pending: ", max_pending
-    print "running: ", max_running
-    h.reactor_stop()
+if __name__ == "__main__":
+    job_stream = mp.Queue(100)
+    finish = mp.Queue()
 
+    sched_proc = mp.Process(target=scheduler_proc, args=(job_stream, finish))
+    sched_proc.start()
+
+    commands = []
+    if len(args.command_file) > 0:
+        commands = fileinput.input(args.command_file)
+
+    if len(args.command) > 0:
+        print 'cl command : {}'.format(args.command)
+        j = Job(args.command, ntasks=args.tasks, nnodes=args.nodes)
+        job_stream.put(j)
+    elif not commands:
+        # If there are still no commands, attempt to read them from standard input
+        raise RuntimeError("No commands specified")
+
+
+    signal.signal(signal.SIGTERM, time_to_die)
 # iterate over all commands from all sources
-for c in commands:
-    arg_list = shlex.split(c, comments=True)
-    if len(arg_list) == 0:
-        continue
-    local_args = arg_parser.parse_args(arg_list)
-    # need a better way to tie these together
-    ntasks = local_args.tasks
-    nnodes = local_args.nodes
-    j = Job(local_args.command, ntasks=ntasks, nnodes=nnodes)
-    j.create()
-    j.submit()
-    while len(sched.pending_jobs) > 100:
-        with h.timer_watcher_create(.5, time_to_die):
-            h.reactor_start()
+    for i, c in enumerate(commands):
+        arg_list = shlex.split(c, comments=True)
+        if len(arg_list) == 0:
+            continue
+        local_args = arg_parser.parse_args(arg_list)
+        # need a better way to tie these together
+        ntasks = local_args.tasks
+        nnodes = local_args.nodes
+        j = Job(local_args.command, ntasks=ntasks, nnodes=nnodes)
+        # print "pushing into stream", i
+        job_stream.put(j)
 
+    finish.get()
 
-with h.timer_watcher_create(600, time_to_die):
-    h.reactor_start()
-
-if len(sched.pending_jobs) + len(sched.running_jobs) == 0:
-    print "All jobs complete, exiting"
-else:
-    print "Some jobs did not finish"
