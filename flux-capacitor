@@ -15,8 +15,6 @@ import Queue
 import subprocess as sp
 import multiprocessing as mp
 
-import urwid
-
 import flux
 import flux.kvs as kvs
 
