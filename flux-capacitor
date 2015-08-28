@@ -38,18 +38,11 @@ arg_parser.add_argument('command', nargs=argparse.REMAINDER)
 
 args = arg_parser.parse_args(sys.argv[1:])
 
-def time_to_die(key=None, value=None, revents=None, sched=None):
-    print "pending: ", len(sched.pending_jobs), max_pending
-    print "running: ", len(sched.running_jobs), max_running
-    if sched is not None:
-        sched.fh.reactor_stop()
 
 not_done = True
 max_pending = 0
 max_running = 0
 
-def job_state_change(key, value, scheduler, errnum):
-    scheduler.state_change(key, value)
 
 Core = collections.namedtuple('Core', ['rank_id', 'os_index', 'logical_index'])
 Rank = collections.namedtuple('Rank', ['rank_id', 'cores', 'available_cores'])
@@ -58,9 +51,11 @@ class Scheduler(object):
     """ A wrapper API for scheduler operations, mainly to stub out 
     functionality that currently does not work without it."""
 
-    def __init__(self, flux_handle = None):
+    def __init__(self, watcher_stream, flux_handle = None, interface = None):
         if flux_handle is None:
             flux_handle = flux.Flux()
+        self.watcher_stream = watcher_stream
+        self.interface = interface
         self.fh = flux_handle
         self.ranks = {}
         self.available_ranks = {}
@@ -109,7 +104,9 @@ class Scheduler(object):
         self.jobs[int(job.job_id)] = job
         jobdir = 'lwj.{}'.format(job.job_id)
         job.kvs = kvs.get_dir(self.fh, jobdir)
-        kvs.watch(self.fh, 'lwj.{}.state'.format(job.job_id), job_state_change, self)
+        self.watcher_stream.put(job.job_id)
+        if self.interface is not None:
+            self.interface.submitted(job)
         self.schedule(job)
 
     def release_job_resources(self, job):
@@ -125,18 +122,16 @@ class Scheduler(object):
 
     def state_change(self, key, state):
         # print "received state change to: '{}'".format(state), key, state, state == 'complete'
-        print key
         m = re.match('lwj.(\d*).state', key)
         job_id = int(m.group(1))
         self.jobs[job_id].state = state
-        print job_id, "reached", state
+        if self.interface is not None:
+            self.interface.state_changed(self.jobs[job_id], state)
         if state == 'complete':
-            kvs.unwatch(self.fh, key)
             job = self.running_jobs.pop(job_id)
             self.completed_jobs[job_id] = job
             self.release_job_resources(job)
             if len(self.pending_jobs) == 0 and len(self.running_jobs) == 0:
-                self.fh.reactor_stop()
                 not_done = False
                 return 0
 
@@ -145,15 +140,13 @@ class Scheduler(object):
         return 0
 
     def schedule(self, job):
-        while len(self.pending_jobs) >= 100:
-            with self.fh.timer_watcher_create(0.5, time_to_die, args=self):
-                self.fh.reactor_start()
+        pass
 
 class FluxScheduler(Scheduler):
     """ Interact with the flux-sched module in the instance """
 
-    def __init__(self, flux_handle = None):
-        super(FluxScheduler, self).__init__(flux_handle)
+    def __init__(self, watcher_stream, flux_handle = None, interface = None):
+        super(FluxScheduler, self).__init__(watcher_stream, flux_handle=flux_handle, interface = interface)
 
     def schedule(self, job):
         super(FluxScheduler, self).schedule(job)
@@ -166,8 +159,8 @@ class FluxScheduler(Scheduler):
 
 class CapScheduler(Scheduler):
     """ Inner scheduler for testing while working on FluxScheduler support """
-    def __init__(self, flux_handle = None):
-        super(CapScheduler, self).__init__(flux_handle)
+    def __init__(self, watcher_stream, flux_handle = None, interface = None):
+        super(CapScheduler, self).__init__(watcher_stream, flux_handle=flux_handle, interface = interface)
         self.total_ranks = 0
         self.total_cores = 0
         self.partial_ranks = {}
@@ -264,6 +257,20 @@ class CapScheduler(Scheduler):
                 except:
                     pass
 
+env_filter = re.compile(r"^(SLURM_|FLUX_)")
+        
+def get_environment():
+    env = dict()
+    keys = env.keys() #inefficient, but effective
+    for key in os.environ:
+        if env_filter.match(key):
+           continue
+        env[key] = os.environ[key]
+    env.pop('HOSTNAME', None)
+    env.pop('ENVIRONMENT', None)
+    # Make MVAPICH behave...
+    env['MPIRUN_RSH_LAUNCH'] = '1'
+    return env
 
 class Job(object):
     def __init__(self, command_arr, **kwargs):
@@ -274,7 +281,7 @@ class Job(object):
             'nnodes': 0,
             'ntasks': 1,
             'cmdline': command_arr,
-            'environ': dict(os.environ),  # TODO: filter this
+            'environ': get_environment(),  # TODO: filter this
             'cwd': os.getcwd(),
         }
         if len(kwargs):
@@ -302,20 +309,44 @@ class Job(object):
                         root, f, self.kvs[kvs.join(root, f)])
             return ret
 
-def scheduler_proc(job_stream, finish):
+class UserInterface(object):
+    def __init__(self, stream=None):
+        self.stream = stream
+        if self.stream is None:
+            self.stream = sys.stdout
+
+    def state_changed(self, job, state):
+        print >> self.stream, "job changed state", job.job_id, state
+
+    def submitted(self, job):
+        print >> self.stream, "job submitted", job.job_id, "pending"
+
+
+
+def scheduler_proc(job_stream, watcher_stream, state_stream, finish):
     ret = 0
+    interface = UserInterface()
     if args.scheduler:
-        sched = FluxScheduler()
+        sched = FluxScheduler(watcher_stream, interface=interface)
     else:
-        sched = CapScheduler()
+        sched = CapScheduler(watcher_stream, interface=interface)
+    closed = False
     while not_done:
+        if len(sched.pending_jobs) <= 100 and not closed:
+            try:
+                j = job_stream.get_nowait()
+                if j == "DONE":
+                    closed = True
+                    continue
+                sched.submit(j)
+            except Queue.Empty:
+                pass
         try:
-            j = job_stream.get_nowait()
-            sched.submit(j)
+            (key, value) = state_stream.get_nowait()
+            sched.state_change(key, value)
         except Queue.Empty:
-            with sched.fh.timer_watcher_create(1, time_to_die, args=sched):
-                sched.fh.reactor_start()
-        if len(sched.pending_jobs) == len(sched.running_jobs) == 0:
+            pass
+        if len(sched.pending_jobs) == len(sched.running_jobs) == 0 and closed:
             break
     finish.put(ret)
 
@@ -324,13 +355,7 @@ def scheduler_proc(job_stream, finish):
     else:
         print "Some jobs did not finish"
 
-if __name__ == "__main__":
-    job_stream = mp.Queue(100)
-    finish = mp.Queue()
-
-    sched_proc = mp.Process(target=scheduler_proc, args=(job_stream, finish))
-    sched_proc.start()
-
+def command_supplier_proc(job_stream):
     commands = []
     if len(args.command_file) > 0:
         commands = fileinput.input(args.command_file)
@@ -343,9 +368,7 @@ if __name__ == "__main__":
         # If there are still no commands, attempt to read them from standard input
         raise RuntimeError("No commands specified")
 
-
-    signal.signal(signal.SIGTERM, time_to_die)
-# iterate over all commands from all sources
+    # iterate over all commands from all sources
     for i, c in enumerate(commands):
         arg_list = shlex.split(c, comments=True)
         if len(arg_list) == 0:
@@ -357,6 +380,45 @@ if __name__ == "__main__":
         j = Job(local_args.command, ntasks=ntasks, nnodes=nnodes)
         # print "pushing into stream", i
         job_stream.put(j)
+    job_stream.put("DONE")
 
-    finish.get()
+def event_reactor_proc(watch_stream, state_stream):
+    fh = flux.Flux()
+    def job_state_change(key, value, scheduler, errnum):
+        if value == 'complete':
+            kvs.unwatch(fh, key)
+        state_stream.put((key, value))
+    def add_watcher(inner_fh, watcher, fd_int, events, args):
+        if events & 4 == 4:
+            raise RuntimeError("IOError detected in event reactor")
+        try:
+            while True:
+                job_id = watch_stream.get(False)
+                if job_id == 'DIE':
+                    fh.reactor_stop()
+                    break
+                kvs.watch(fh, 'lwj.{}.state'.format(job_id), job_state_change, None)
+        except Queue.Empty:
+            pass
+    with flux.core.watchers.FDWatcher(fh, watch_stream._reader.fileno(), 3, add_watcher, watch_stream):
+        fh.reactor_start()
+
+
+if __name__ == "__main__":
+    job_stream = mp.Queue(100)
+    state_stream = mp.Queue(100)
+    watcher_stream = mp.Queue(100)
+    finish = mp.Queue(1)
+
+    reactor_proc = mp.Process(target=event_reactor_proc, args=(watcher_stream, state_stream))
+    reactor_proc.start()
+    sched_proc = mp.Process(target=scheduler_proc, args=(job_stream, watcher_stream, state_stream, finish))
+    sched_proc.start()
+    command_proc = mp.Process(target=command_supplier_proc, args=(job_stream,))
+    command_proc.start()
+
+    command_proc.join()
+    sched_proc.join()
+    watcher_stream.put("DIE")
+    reactor_proc.join()
 
