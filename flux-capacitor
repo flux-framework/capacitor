@@ -8,6 +8,7 @@ import time
 import fileinput
 import itertools
 import collections
+import math
 import shlex
 import signal
 import select
@@ -54,6 +55,8 @@ class Scheduler(object):
     def __init__(self, watcher_stream, flux_handle = None, interface = None):
         if flux_handle is None:
             flux_handle = flux.Flux()
+        self.total_ranks = 0
+        self.total_cores = 0
         self.watcher_stream = watcher_stream
         self.interface = interface
         self.fh = flux_handle
@@ -83,9 +86,11 @@ class Scheduler(object):
                 os_index = self.get_os_id_for_core(resources, i)
                 c = Core(int(rank_id), os_index, i)
                 cores.append(c)
+                self.total_cores += 1
             r = Rank(int(rank_id), cores, cores)
             self.ranks[int(rank_id)] = r
             self.available_ranks[int(rank_id)] = r
+            self.total_ranks += 1
 
     def check_feasibility(self, job):
         if job.spec['nnodes'] > len(self.ranks):
@@ -162,8 +167,6 @@ class CapScheduler(Scheduler):
     """ Inner scheduler for testing while working on FluxScheduler support """
     def __init__(self, watcher_stream, flux_handle = None, interface = None):
         super(CapScheduler, self).__init__(watcher_stream, flux_handle=flux_handle, interface = interface)
-        self.total_ranks = 0
-        self.total_cores = 0
         self.partial_ranks = {}
 
     def schedule(self, job):
@@ -193,7 +196,10 @@ class CapScheduler(Scheduler):
                     core = r.available_cores.pop()
                 job.kvs['rank.{}.cores'.format(r.rank_id)] = tasks
         else:
+            tasks_required = job.spec['ntasks']
             cores_required = job.spec['ntasks']
+            if cores_required > self.total_cores:
+                cores_required = self.total_cores
             for rid, r in self.partial_ranks.items():
                 cores_from_here = 0
                 while len(r.available_cores):
@@ -224,6 +230,17 @@ class CapScheduler(Scheduler):
                     del self.available_ranks[rid]
 
                     if cores_from_here > 0:
+                        allocate_count = cores_from_here
+                        if tasks_required > cores_required:
+                            # Allocate by multiples
+                            modifier = int(math.floor(tasks_required / cores_required))
+                            allocate_count *= modifier
+                            if tasks_required % cores_required > 0:
+                                # Clean up the stragglers
+                                allocate_count += 1
+                                tasks_required -= 1
+                            cores_from_here = allocate_count
+
                         job.kvs['rank.{}.cores'.format(r.rank_id)] = cores_from_here
                     if len(assigned_cores) >= cores_required:
                         break
