@@ -127,6 +127,10 @@ class Scheduler(object):
         self.jobs[job_id].state = state
         if self.interface is not None:
             self.interface.state_changed(self.jobs[job_id], state)
+        if state == 'running':
+            job = self.pending_jobs.pop(job_id, None)
+            if job is not None:
+                self.running_jobs[job_id] = job
         if state == 'complete':
             job = self.running_jobs.pop(job_id)
             self.completed_jobs[job_id] = job
