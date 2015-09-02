@@ -8,6 +8,7 @@ import time
 import fileinput
 import itertools
 import collections
+import math
 import shlex
 import signal
 import select
@@ -30,8 +31,8 @@ arg_parser.add_argument(
     action='append',
     default=[],
     help='''Name of a file with one argument list per line, blank
-lines and lines where the first non-whitespace character is a # are ignored, 
-all arguments accepted on the %(prog)s line are accepted in the file, may 
+lines and lines where the first non-whitespace character is a # are ignored,
+all arguments accepted on the %(prog)s line are accepted in the file, may
 be specified multiple times''')
 
 arg_parser.add_argument('command', nargs=argparse.REMAINDER)
@@ -48,12 +49,14 @@ Core = collections.namedtuple('Core', ['rank_id', 'os_index', 'logical_index'])
 Rank = collections.namedtuple('Rank', ['rank_id', 'cores', 'available_cores'])
 
 class Scheduler(object):
-    """ A wrapper API for scheduler operations, mainly to stub out 
+    """ A wrapper API for scheduler operations, mainly to stub out
     functionality that currently does not work without it."""
 
     def __init__(self, watcher_stream, flux_handle = None, interface = None):
         if flux_handle is None:
             flux_handle = flux.Flux()
+        self.total_ranks = 0
+        self.total_cores = 0
         self.watcher_stream = watcher_stream
         self.interface = interface
         self.fh = flux_handle
@@ -83,9 +86,11 @@ class Scheduler(object):
                 os_index = self.get_os_id_for_core(resources, i)
                 c = Core(int(rank_id), os_index, i)
                 cores.append(c)
+                self.total_cores += 1
             r = Rank(int(rank_id), cores, cores)
             self.ranks[int(rank_id)] = r
             self.available_ranks[int(rank_id)] = r
+            self.total_ranks += 1
 
     def check_feasibility(self, job):
         if job.spec['nnodes'] > len(self.ranks):
@@ -105,6 +110,7 @@ class Scheduler(object):
         jobdir = 'lwj.{}'.format(job.job_id)
         job.kvs = kvs.get_dir(self.fh, jobdir)
         self.watcher_stream.put(job.job_id)
+        self.watcher_stream.join()
         if self.interface is not None:
             self.interface.submitted(job)
         self.schedule(job)
@@ -126,7 +132,7 @@ class Scheduler(object):
         job_id = int(m.group(1))
         self.jobs[job_id].state = state
         if self.interface is not None:
-            self.interface.state_changed(self.jobs[job_id], state)
+            self.interface.state_changed(self.jobs[job_id], state + " pending: {} running: {}".format(len(self.pending_jobs), len(self.running_jobs)))
         if state == 'running':
             job = self.pending_jobs.pop(job_id, None)
             if job is not None:
@@ -165,8 +171,6 @@ class CapScheduler(Scheduler):
     """ Inner scheduler for testing while working on FluxScheduler support """
     def __init__(self, watcher_stream, flux_handle = None, interface = None):
         super(CapScheduler, self).__init__(watcher_stream, flux_handle=flux_handle, interface = interface)
-        self.total_ranks = 0
-        self.total_cores = 0
         self.partial_ranks = {}
 
     def schedule(self, job):
@@ -196,7 +200,10 @@ class CapScheduler(Scheduler):
                     core = r.available_cores.pop()
                 job.kvs['rank.{}.cores'.format(r.rank_id)] = tasks
         else:
+            tasks_required = job.spec['ntasks']
             cores_required = job.spec['ntasks']
+            if cores_required > self.total_cores:
+                cores_required = self.total_cores
             for rid, r in self.partial_ranks.items():
                 cores_from_here = 0
                 while len(r.available_cores):
@@ -227,6 +234,17 @@ class CapScheduler(Scheduler):
                     del self.available_ranks[rid]
 
                     if cores_from_here > 0:
+                        allocate_count = cores_from_here
+                        if tasks_required > cores_required:
+                            # Allocate by multiples
+                            modifier = int(math.floor(tasks_required / cores_required))
+                            allocate_count *= modifier
+                            if tasks_required % cores_required > 0:
+                                # Clean up the stragglers
+                                allocate_count += 1
+                                tasks_required -= 1
+                            cores_from_here = allocate_count
+
                         job.kvs['rank.{}.cores'.format(r.rank_id)] = cores_from_here
                     if len(assigned_cores) >= cores_required:
                         break
@@ -262,7 +280,7 @@ class CapScheduler(Scheduler):
                     pass
 
 env_filter = re.compile(r"^(SLURM_|FLUX_)")
-        
+
 def get_environment():
     env = dict()
     keys = env.keys() #inefficient, but effective
@@ -336,28 +354,35 @@ def scheduler_proc(job_stream, watcher_stream, state_stream, finish):
         sched = CapScheduler(watcher_stream, interface=interface)
     closed = False
     while not_done:
-        if len(sched.pending_jobs) <= 100 and not closed:
-            try:
-                j = job_stream.get_nowait()
+        reader_list = [  state_stream._reader ]
+        if len(sched.pending_jobs) < 100:
+            reader_list.append(job_stream._reader)
+
+        to_read, [], [] = select.select(reader_list, [], [])
+        for fd in to_read:
+            if fd == job_stream._reader:
+                j = job_stream.get()
                 if j == "DONE":
                     closed = True
                     continue
                 sched.submit(j)
-            except Queue.Empty:
-                pass
-        try:
-            (key, value) = state_stream.get_nowait()
-            sched.state_change(key, value)
-        except Queue.Empty:
-            pass
+            elif fd == state_stream._reader:
+                while True:
+                    try:
+                        (key, value) = state_stream.get_nowait()
+                        sched.state_change(key, value)
+                    except Queue.Empty:
+                        break
+            else:
+                raise RuntimeError("Unknown stream returned from select")
         if len(sched.pending_jobs) == len(sched.running_jobs) == 0 and closed:
             break
-    finish.put(ret)
 
     if len(sched.pending_jobs) + len(sched.running_jobs) == 0:
         print "All jobs complete, exiting"
     else:
         print "Some jobs did not finish"
+    watcher_stream.put("DIE")
 
 def command_supplier_proc(job_stream):
     commands = []
@@ -365,7 +390,6 @@ def command_supplier_proc(job_stream):
         commands = fileinput.input(args.command_file)
 
     if len(args.command) > 0:
-        print 'cl command : {}'.format(args.command)
         j = Job(args.command, ntasks=args.tasks, nnodes=args.nodes)
         job_stream.put(j)
     elif not commands:
@@ -402,6 +426,7 @@ def event_reactor_proc(watch_stream, state_stream):
                     fh.reactor_stop()
                     break
                 kvs.watch(fh, 'lwj.{}.state'.format(job_id), job_state_change, None)
+                watch_stream.task_done()
         except Queue.Empty:
             pass
     with flux.core.watchers.FDWatcher(fh, watch_stream._reader.fileno(), 3, add_watcher, watch_stream):
@@ -410,8 +435,8 @@ def event_reactor_proc(watch_stream, state_stream):
 
 if __name__ == "__main__":
     job_stream = mp.Queue(100)
-    state_stream = mp.Queue(100)
-    watcher_stream = mp.Queue(100)
+    state_stream = mp.Queue(10000)
+    watcher_stream = mp.JoinableQueue(100)
     finish = mp.Queue(1)
 
     reactor_proc = mp.Process(target=event_reactor_proc, args=(watcher_stream, state_stream))
@@ -423,6 +448,5 @@ if __name__ == "__main__":
 
     command_proc.join()
     sched_proc.join()
-    watcher_stream.put("DIE")
     reactor_proc.join()
 
