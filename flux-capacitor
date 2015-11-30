@@ -35,6 +35,16 @@ lines and lines where the first non-whitespace character is a # are ignored,
 all arguments accepted on the %(prog)s line are accepted in the file, may
 be specified multiple times''')
 
+try: 
+    import cram
+    arg_parser.add_argument(
+        '--cram_file', '-C',
+        action='append',
+        default=[],
+        help='''Name of a command file created by the CRAM utility''')
+except ImportError:
+    cram = False
+
 arg_parser.add_argument('command', nargs=argparse.REMAINDER)
 
 args = arg_parser.parse_args(sys.argv[1:])
