@@ -161,7 +161,20 @@ class FluxScheduler(Scheduler):
     def schedule(self, job):
         super(FluxScheduler, self).schedule(job)
         self.pending_jobs[int(job.job_id)] = job
-        job_dir = 'lwj.{}'.format(job.job_id)
+        # TODO: this should be subsumed by a job submission and event
+        # interface
+        job.kvs['state'] = 'submitted'
+        job.kvs.commit()
+
+class SlurmScheduler(Scheduler):
+    """ Interact with the flux-sched module in the instance """
+
+    def __init__(self, watcher_stream, flux_handle = None, interface = None):
+        super(SlurmScheduler, self).__init__(watcher_stream, flux_handle=flux_handle, interface = interface)
+
+    def schedule(self, job):
+        super(SlurmScheduler, self).schedule(job)
+        self.pending_jobs[int(job.job_id)] = job
         # TODO: this should be subsumed by a job submission and event
         # interface
         job.kvs['state'] = 'submitted'
@@ -384,30 +397,30 @@ def scheduler_proc(job_stream, watcher_stream, state_stream, finish):
         print "Some jobs did not finish"
     watcher_stream.put("DIE")
 
-def command_supplier_proc(job_stream):
-    commands = []
-    if len(args.command_file) > 0:
-        commands = fileinput.input(args.command_file)
-
-    if len(args.command) > 0:
-        j = Job(args.command, ntasks=args.tasks, nnodes=args.nodes)
+depth = 0
+def run_args(cur_args, job_stream):
+    global depth
+    commands = None
+    # iterate over all commands from all sources
+    if len(cur_args.command) > 0:
+        j = Job(cur_args.command, ntasks=cur_args.tasks, nnodes=cur_args.nodes)
         job_stream.put(j)
-    elif not commands:
+    elif len(cur_args.command_file) > 0:
+        depth += 1
+        commands = fileinput.FileInput(cur_args.command_file)
+        for i, c in enumerate(commands):
+            arg_list = shlex.split(c, comments=True)
+            if len(arg_list) == 0:
+                continue
+            local_args = arg_parser.parse_args(arg_list)
+            run_args(local_args, job_stream)
+    elif depth == 0:
         # If there are still no commands, attempt to read them from standard input
         raise RuntimeError("No commands specified")
 
-    # iterate over all commands from all sources
-    for i, c in enumerate(commands):
-        arg_list = shlex.split(c, comments=True)
-        if len(arg_list) == 0:
-            continue
-        local_args = arg_parser.parse_args(arg_list)
-        # need a better way to tie these together
-        ntasks = local_args.tasks
-        nnodes = local_args.nodes
-        j = Job(local_args.command, ntasks=ntasks, nnodes=nnodes)
-        # print "pushing into stream", i
-        job_stream.put(j)
+
+def command_supplier_proc(job_stream):
+    run_args(args, job_stream)
     job_stream.put("DONE")
 
 def event_reactor_proc(watch_stream, state_stream):
