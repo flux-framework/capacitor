@@ -424,6 +424,18 @@ def run_args(cur_args, job_stream):
                 continue
             local_args = arg_parser.parse_args(arg_list)
             run_args(local_args, job_stream)
+    elif cram and len(cur_args.cram_file) > 0:
+        depth += 1
+        for cfile in cur_args.cram_file:
+            for c in cram.cramfile.CramFile(cfile):
+                if len(c.args) == 0:
+                    continue
+                job_stream.put(Job(
+                    c.args,
+                    ntasks=c.num_procs,
+                    environ=c.env,
+                    cwd=c.working_dir,
+                    ))
     elif depth == 0:
         # If there are still no commands, attempt to read them from standard input
         raise RuntimeError("No commands specified")
@@ -446,14 +458,14 @@ def event_reactor_proc(watch_stream, state_stream):
             while True:
                 job_id = watch_stream.get(False)
                 if job_id == 'DIE':
-                    fh.reactor_stop()
+                    fh.reactor_stop(fh.get_reactor())
                     break
                 kvs.watch(fh, 'lwj.{}.state'.format(job_id), job_state_change, None)
                 watch_stream.task_done()
         except Queue.Empty:
             pass
     with flux.core.watchers.FDWatcher(fh, watch_stream._reader.fileno(), 3, add_watcher, watch_stream):
-        fh.reactor_start()
+        fh.reactor_run(fh.get_reactor(), 0)
 
 
 if __name__ == "__main__":
