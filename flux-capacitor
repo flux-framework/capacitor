@@ -18,6 +18,7 @@ import multiprocessing as mp
 
 import flux
 import flux.kvs as kvs
+import flux.kz as kz
 
 arg_parser = argparse.ArgumentParser(
     description="Execute a group of programs with the flux resource manager")
@@ -25,6 +26,8 @@ arg_parser = argparse.ArgumentParser(
 arg_parser.add_argument('--tasks', '-n', type=int, default=1)
 arg_parser.add_argument('--nodes', '-N', type=int, default=0)
 arg_parser.add_argument('--scheduler', '-S')
+arg_parser.add_argument('--prefix', '-P', help="Prefix output/err lines with the associated job id", action='store_true')
+
 
 arg_parser.add_argument(
     '--command_file', '-c',
@@ -119,7 +122,7 @@ class Scheduler(object):
         self.jobs[int(job.job_id)] = job
         jobdir = 'lwj.{}'.format(job.job_id)
         job.kvs = kvs.get_dir(self.fh, jobdir)
-        self.watcher_stream.put(job.job_id)
+        self.watcher_stream.put((job.job_id, job.spec['ntasks']))
         self.watcher_stream.join()
         if self.interface is not None:
             self.interface.submitted(job)
@@ -451,16 +454,25 @@ def event_reactor_proc(watch_stream, state_stream):
         if value == 'complete':
             kvs.unwatch(fh, key)
         state_stream.put((key, value))
-    def add_watcher(inner_fh, watcher, fd_int, events, args):
+    def add_watcher(inner_fh, watcher, fd_int, events, watcher_args):
         if events & 4 == 4:
             raise RuntimeError("IOError detected in event reactor")
         try:
             while True:
-                job_id = watch_stream.get(False)
-                if job_id == 'DIE':
+                tup = watch_stream.get(False)
+                if tup == 'DIE':
                     fh.reactor_stop(fh.get_reactor())
                     break
+                (job_id, tasks) = tup
                 kvs.watch(fh, 'lwj.{}.state'.format(job_id), job_state_change, None)
+                # TODO: generalize IO handling
+                for task_id in range(0, tasks):
+                    prefix = None
+                    if args.prefix:
+                        prefix = 'lwj.{}.{}: '.format(job_id, task_id)
+                    kz.attach(fh, 'lwj.{}.{}.stdout'.format(job_id, task_id), sys.stdout, prefix)
+                    kz.attach(fh, 'lwj.{}.{}.stderr'.format(job_id, task_id), sys.stderr, prefix)
+
                 watch_stream.task_done()
         except Queue.Empty:
             pass
